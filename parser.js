@@ -2,6 +2,7 @@
 
 // get text from the currently active tab
 const getTabText = async (tabId) => {
+    // console.log(`tab_id is ${tabId}`)
     const tabText = await chrome.scripting.executeScript({
         target: {
             tabId,
@@ -20,9 +21,24 @@ const getActiveTabId = async () => {
 
 
 const getAirtableSchema = async () => {
-    fetch('http://www.example.com?par=0').then(r => r.text()).then(result => {
-        // Result now contains the response text, do what you want...
+    const response = await fetch(`https://api.airtable.com/v0/meta/bases/${AIRTABLE_BASE_ID}/tables`, {
+        headers: {
+            Authorization: `Bearer ${AIRTABLE_API_KEY}`
+        }
     })
+    
+    const text = response.text()
+
+    return text
 }
 
-getTabText(getActiveTabId())
+const run = async () => {
+    const id = await getActiveTabId()
+    getTabText(id)
+    const schema = await getAirtableSchema()
+    console.log('got ze schema')
+    console.log(Object.keys(JSON.parse(schema)))
+}
+
+run()
+
