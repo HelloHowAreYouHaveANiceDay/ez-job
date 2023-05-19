@@ -1,12 +1,15 @@
 
 const parseStructure = {
-    'position': "",
-    'company': '',
-    'location': '',
-    'isRemote': '',
-    'salaryListed': '',
-    'salaryLow': '',
-    'salaryHigh': ''
+    'position': 'string',
+    'company': 'string',
+    'location': 'string in the format of city, state',
+    'isHybrid': 'boolean',
+    'isRemote': 'boolean',
+    'salaryListed': 'boolean',
+    'salaryLow': 'number',
+    'salaryHigh': 'number',
+    'jobDescription': 'string',
+    'jobRequirements': 'string',
 }
 
 // get text from the currently active tab
@@ -105,5 +108,7 @@ function cleanText(text) {
     return text.trim().replace(/\s+/g, ' ');
 }
 
-run()
 
+document.getElementById('clickme').addEventListener('click', function() {
+    run()
+  });
