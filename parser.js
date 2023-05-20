@@ -18,16 +18,16 @@ const parseStructure = {
 
 // get text from the currently active tab
 const getTabText = async (tabId) => {
-    // console.log(`tab_id is ${tabId}`)
     const tabText = await chrome.scripting.executeScript({
         target: {
             tabId,
         },
-        func: () => document.documentElement.innerText
+        // func: () => document.documentElement.innerText
+        func: () => window.getSelection().toString()
     })
     const { frameId, result } = tabText[0]
     const text = cleanText(result)
-    //    console.log(text)
+    console.log(text)
     return text
 }
 
@@ -82,14 +82,13 @@ const postToAirtable = async (job) => {
             },
             body: JSON.stringify(
                 {
-                    records: [{
-                        fidles: job
-                    }
-                    ],
-                    "typecast": "true"
+                    fields: job,
+                    "typecast": true
                 }
             )
         })
+
+        console.log(await response.json())
     } catch (error) {
         console.error(error)
     }

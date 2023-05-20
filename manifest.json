@@ -7,6 +7,7 @@
         "default_popup": "index.html",
         "default_icon": "icon.png"
     },
+    "host_permissions": ["http://*/", "https://*/"],
     "permissions": [
         "activeTab",
         "scripting",
