@@ -1,3 +1,10 @@
+// Job Parser Chrome Extension
+// 1. Get the selected text from the current tab
+// 2. Send the text to OpenAI to parse the job description
+// 3. Parse the response
+// 4. Push the scraped job to Airtable
+
+
 
 const parseStructure = {
     'jobTitle': 'string',
@@ -23,6 +30,7 @@ const getTabText = async (tabId) => {
             tabId,
         },
         // func: () => document.documentElement.innerText
+        // get the selected string from the page
         func: () => window.getSelection().toString()
     })
     const { frameId, result } = tabText[0]
@@ -31,7 +39,7 @@ const getTabText = async (tabId) => {
     return text
 }
 
-// ge the id of the currently active tab 
+// get the id of the currently active tab 
 const getActiveTabId = async () => {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
     return tabs[0].id
@@ -65,7 +73,7 @@ const parseJobText = async (text) => {
 
     const data = await response.json()
 
-    console.log(data)
+    // console.log(data)
 
     return data['choices'][0]['message']['content']
 }
@@ -96,19 +104,55 @@ const postToAirtable = async (job) => {
 }
 
 const run = async () => {
+    // 1. get the text from the currently active tab
     const id = await getActiveTabId()
     const text = await getTabText(id)
+    // 2. send the text to OpenAI to parse the job description
     const content = await parseJobText(text)
-    const results = JSON.parse(content)
-    await postToAirtable(results)
+    // if the content is valid json, post it to airtable
+    if(isJson(content)){
+        // 3. parse the response
+        const results = JSON.parse(content)
+        // 4. push the scraped job to Airtable
+        await postToAirtable(results)
+        changeModalText('Job posted to Airtable')
+    } else {
+        changeModalText(content)
+    }
+   
     console.log(results)
 }
 
+// clean the text to reduce token use
 function cleanText(text) {
     return text.trim().replace(/\s+/g, ' ');
 }
 
+// checks if the returned content is valid json
+// if OpenAI can't parse the description, it will return a error message
+function isJson(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 
+// run the script when the button is clicked
 document.getElementById('clickme').addEventListener('click', function () {
     run()
 });
+
+function changeModalText(message){
+    var dialog = document.createElement('dialog');
+    dialog.textContent = message;
+    var button = document.createElement('button');
+    button.textContent = 'Close';
+    dialog.appendChild(button);
+    button.addEventListener('click', function() {
+      dialog.close();
+    });
+    document.body.appendChild(dialog);
+    dialog.showModal();
+}
