@@ -5,7 +5,8 @@
 // 4. Push the scraped job to Airtable
 
 
-
+// configure this based on your airtable
+// column names should match the keys in the parseStructure object
 const parseStructure = {
     'jobTitle': 'string',
     'company': 'string',
@@ -82,7 +83,7 @@ const parseJobText = async (text) => {
 const postToAirtable = async (job) => {
 
     try {
-        const response = await fetch('https://api.airtable.com/v0/appRthYTCjP35v3lA/Jobs', {
+        const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}`, {
             'method': 'POST',
             'headers': {
                 'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
